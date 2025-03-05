@@ -6,8 +6,6 @@ plugins {
     id("com.gradleup.shadow") version "9.0.0-beta9"
 }
 
-group = "org.readutf.buildstore"
-
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
@@ -47,7 +45,7 @@ tasks.withType<JavaCompile> {
 }
 
 bukkitPluginYaml {
-    name = project.name
+    name = "BuildStore"
     version = project.version.toString()
     main = "org.readutf.buildstore.server.BuildStorePlugin"
     description = "A plugin for BuildStore"

@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenCentral()
         gradlePluginPortal()
         maven("https://repo.papermc.io/repository/maven-public/")
     }
@@ -9,5 +10,4 @@ plugins {
 }
 rootProject.name = "buildstore"
 include("api")
-include("server")
 include("server")
