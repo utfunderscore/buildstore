@@ -33,6 +33,7 @@ dependencies {
     implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.9")
 
     implementation(project(":api"))
+    implementation(project(":aws-s3"))
 }
 
 tasks.test {

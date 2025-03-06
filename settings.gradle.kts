@@ -11,3 +11,4 @@ plugins {
 rootProject.name = "buildstore"
 include("api")
 include("server")
+include("aws-s3")
