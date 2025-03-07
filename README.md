@@ -10,7 +10,7 @@
 
 ## What is buildstore?
 Buildstore allows you to save, upload, and track the history your schematics. It is intended for use on minigame servers for dynamic map loading, so that updates
-and changes can be done on a seperate build server.
+and changes can be done on a seperate buildData server.
 
 ## Supported Remotes
  * Local filesystem

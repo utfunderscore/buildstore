@@ -1,7 +1,5 @@
 package org.readutf.buildstore.api;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.readutf.buildstore.api.exception.BuildException;
@@ -10,40 +8,39 @@ import org.readutf.buildstore.api.exception.BuildException;
  * Represents a store for builds, either backed by a database, filesystem, or other storage mechanism.
  * Implementations are free to block the calling thread, or perform operations asynchronously.
  */
-public interface BuildStore {
+public class BuildStore {
 
-    boolean exists(String name) throws BuildException;
+    private @NonNull final BuildDataStore buildDataStore;
+    private @NonNull final BuildMetaStore buildMetaStore;
 
-    Collection<BuildMeta> getBuilds() throws BuildException;
-
-    Build loadBuild(String buildName, Integer version) throws BuildException;
-
-    void saveBuild(Build build) throws BuildException;
-
-    default Build loadBuild(BuildMeta buildMeta) throws BuildException {
-        return loadBuild(buildMeta.name(), buildMeta.version());
+    public BuildStore(@NonNull BuildDataStore buildDataStore, @NonNull BuildMetaStore buildMetaStore) {
+        this.buildDataStore = buildDataStore;
+        this.buildMetaStore = buildMetaStore;
     }
 
-    default @NonNull BuildMeta getLatestBuild(String name) throws BuildException {
-
-        return getBuilds().stream()
-                .filter(meta -> meta.name().equalsIgnoreCase(name))
-                .max(Comparator.comparingInt(BuildMeta::version)).orElseThrow(() -> new BuildException("No builds found for " + name));
+    public boolean exists(String buildName) throws BuildException {
+        return buildMetaStore.exists(buildName);
     }
 
-    default @NonNull List<BuildMeta> getHistory(String name) throws BuildException {
-        return getBuilds().stream()
-                .filter(meta -> meta.name().equalsIgnoreCase(name))
-                .sorted(Comparator.comparingLong(BuildMeta::savedAt).reversed())
-                .toList();
+    public void save(BuildMeta meta, byte[] data) throws BuildException {
+        buildMetaStore.save(meta);
+        buildDataStore.save(new BuildData(meta.name(), meta.version(), data));
     }
 
-    default @NonNull List<BuildMeta> getBuildsWithTag(String name) throws BuildException {
-        return getBuilds().stream()
-                .filter(meta -> meta.labels().contains(name))
-                .toList();
+    public List<BuildMeta> getHistory(String buildName) throws BuildException {
+        return buildMetaStore.getBuildMetas(buildName);
     }
 
+    public Build loadLatest(String buildName) throws BuildException{
+        BuildMeta metas = buildMetaStore.getLatest(buildName);
+        BuildData data = buildDataStore.load(metas.name(), metas.version());
+        return new Build(metas, data);
+    }
 
+    public Build load(String buildName, int buildVersion) throws BuildException {
+        BuildMeta meta = buildMetaStore.getBuildMeta(buildName, buildVersion);
+        BuildData data = buildDataStore.load(buildName, buildVersion);
+        return new Build(meta, data);
+    }
 
 }

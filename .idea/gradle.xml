@@ -10,7 +10,9 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/api" />
             <option value="$PROJECT_DIR$/aws-s3" />
+            <option value="$PROJECT_DIR$/hibernate" />
             <option value="$PROJECT_DIR$/server" />
+            <option value="$PROJECT_DIR$/sql" />
           </set>
         </option>
       </GradleProjectSettings>

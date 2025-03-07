@@ -12,3 +12,5 @@ rootProject.name = "buildstore"
 include("api")
 include("server")
 include("aws-s3")
+include("hibernate")
+include("sql")
