@@ -26,7 +26,11 @@ public class S3BuildStore implements BuildDataStore {
     private @NonNull final String bucket;
     private @NonNull final S3Client client;
 
-    public S3BuildStore(@NonNull AwsBasicCredentials credentials, @NonNull Region region, @NonNull String bucket) {
+    public S3BuildStore(@NonNull AwsBasicCredentials credentials, @NonNull Region region, @NonNull String bucket, boolean pathStyleAccess) {
+        S3Configuration serviceConfiguration = S3Configuration.builder()
+                .pathStyleAccessEnabled(pathStyleAccess)
+                .build();
+
         client = S3Client.builder()
                 .region(region)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
@@ -36,9 +40,9 @@ public class S3BuildStore implements BuildDataStore {
         client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
     }
 
-    public S3BuildStore(@NonNull AwsBasicCredentials credentials, URI endpointOverride, @NonNull Region region, @NonNull String bucket) {
+    public S3BuildStore(@NonNull AwsBasicCredentials credentials, URI endpointOverride, @NonNull Region region, @NonNull String bucket, boolean pathStyleAccess) {
         S3Configuration serviceConfiguration = S3Configuration.builder()
-                .pathStyleAccessEnabled(true)
+                .pathStyleAccessEnabled(pathStyleAccess)
                 .build();
 
         client = S3Client.builder()

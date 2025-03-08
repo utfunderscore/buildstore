@@ -1,8 +1,9 @@
-package org.readutf.buildstore.sql;
+package org.readutf.buildstore.sql.tables;
 
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import org.readutf.buildstore.api.BuildData;
 
 @DatabaseTable(tableName = "build_data")
 public class BuildDataTable {
@@ -21,10 +22,10 @@ public class BuildDataTable {
 
     BuildDataTable() {}
 
-    public BuildDataTable(String name, int version, byte[] schematicBytes) {
-        this.name = name;
-        this.version = version;
-        this.schematicBytes = schematicBytes;
+    public BuildDataTable(BuildData buildData) {
+        this.name = buildData.name();
+        this.version = buildData.version();
+        this.schematicBytes = buildData.schematicBytes();
     }
 
     public String getName() {

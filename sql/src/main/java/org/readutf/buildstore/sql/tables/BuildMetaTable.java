@@ -1,11 +1,14 @@
-package org.readutf.buildstore.sql;
+package org.readutf.buildstore.sql.tables;
 
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.ZoneOffset;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 import org.readutf.buildstore.api.BuildMeta;
 
 @DatabaseTable(tableName = "build_meta")
@@ -23,14 +26,14 @@ public class BuildMetaTable {
     @DatabaseField(columnName = "description", canBeNull = false)
     private String description;
 
-    @DatabaseField(columnName = "labels", canBeNull = false)
-    private List<String> labels;
+    @ForeignCollectionField(eager = true)
+    private ForeignCollection<BuildLabelsTable> labels;
 
     @DatabaseField(columnName = "saved_by", canBeNull = false)
     private UUID savedBy;
 
     @DatabaseField(columnName = "saved_at", canBeNull = false)
-    private LocalDateTime savedAt;
+    private Timestamp savedAt;
 
     BuildMetaTable() {}
 
@@ -38,9 +41,8 @@ public class BuildMetaTable {
         this.name = buildMeta.name();
         this.version = buildMeta.version();
         this.description = buildMeta.description();
-        this.labels = buildMeta.labels();
         this.savedBy = buildMeta.savedBy();
-        this.savedAt = LocalDateTime.now();
+        this.savedAt = Timestamp.from(buildMeta.savedAt().toInstant(ZoneOffset.UTC));
     }
 
     public int getId() {
@@ -75,27 +77,27 @@ public class BuildMetaTable {
         this.description = description;
     }
 
-    public String getLabels() {
+    public ForeignCollection<BuildLabelsTable> getLabels() {
         return labels;
     }
 
-    public void setLabels(String labels) {
+    public void setLabels(ForeignCollection<BuildLabelsTable> labels) {
         this.labels = labels;
     }
 
-    public String getSavedBy() {
+    public UUID getSavedBy() {
         return savedBy;
     }
 
-    public void setSavedBy(String savedBy) {
+    public void setSavedBy(UUID savedBy) {
         this.savedBy = savedBy;
     }
 
-    public long getSavedAt() {
+    public Timestamp getSavedAt() {
         return savedAt;
     }
 
-    public void setSavedAt(long savedAt) {
+    public void setSavedAt(Timestamp savedAt) {
         this.savedAt = savedAt;
     }
 }

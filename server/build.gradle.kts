@@ -34,6 +34,7 @@ dependencies {
 
     implementation(project(":api"))
     implementation(project(":aws-s3"))
+    implementation(project(":sql"))
 }
 
 tasks.test {
@@ -46,7 +47,7 @@ tasks.withType<JavaCompile> {
 }
 
 bukkitPluginYaml {
-    name = "BuildStore"
+    name = "buildstore"
     version = project.version.toString()
     main = "org.readutf.buildstore.server.BuildStorePlugin"
     description = "A plugin for BuildStore"

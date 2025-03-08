@@ -15,6 +15,7 @@ import com.sk89q.worldedit.world.World;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -64,11 +68,16 @@ public class BuildCommand {
     @Command({"build", "build help"})
     public void help(Player player) {
         player.sendMessage(Component.text("Build commands:").decorate(TextDecoration.BOLD));
-        player.sendMessage(Component.text("/build create").color(NamedTextColor.GRAY).append(Component.text(" - Create a new build").color(NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("/build setdescription <description>").color(NamedTextColor.GRAY).append(Component.text(" - Set the description of the build").color(NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("/build addlabel <labels>").color(NamedTextColor.GRAY).append(Component.text(" - Add labels to the build").color(NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("/build removelabel <labels>").color(NamedTextColor.GRAY).append(Component.text(" - Remove labels from the build").color(NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("/build save").color(NamedTextColor.GRAY).append(Component.text(" - Save the build").color(NamedTextColor.WHITE)));
+        player.sendMessage(Component.text("/build create").color(GRAY).append(
+                Component.text(" - Create a new build").color(WHITE)));
+        player.sendMessage(Component.text("/build setdescription <description>").color(GRAY).append(
+                Component.text(" - Set the description of the build").color(WHITE)));
+        player.sendMessage(Component.text("/build addlabel <labels>").color(GRAY).append(
+                Component.text(" - Add labels to the build").color(WHITE)));
+        player.sendMessage(Component.text("/build removelabel <labels>").color(GRAY).append(
+                Component.text(" - Remove labels from the build").color(WHITE)));
+        player.sendMessage(Component.text("/build save").color(GRAY).append(
+                Component.text(" - Save the build").color(WHITE)));
     }
 
     @Command({"build info"})
@@ -76,20 +85,27 @@ public class BuildCommand {
         PartialBuildMeta partialBuildMeta = partialBuilds.get(name);
 
         if (partialBuildMeta != null) {
-            player.sendMessage(Component.text("Build info for " + name).color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
-            player.sendMessage(Component.text("State: ").color(NamedTextColor.GRAY).append(Component.text("Local").color(NamedTextColor.GREEN)));
-            player.sendMessage(Component.text("Version: ").color(NamedTextColor.GRAY).append(Component.text(partialBuildMeta.getVersion()).color(NamedTextColor.WHITE)));
+            player.sendMessage(
+                    Component.text("Build info for " + name).color(BLUE).decorate(TextDecoration.BOLD));
+            player.sendMessage(Component.text("State: ").color(GRAY).append(
+                    Component.text("Local").color(NamedTextColor.GREEN)));
+            player.sendMessage(Component.text("Version: ").color(GRAY).append(
+                    Component.text(partialBuildMeta.getVersion()).color(WHITE)));
             if (partialBuildMeta.getDescription() != null) {
-                player.sendMessage(Component.text("Description: ").color(NamedTextColor.GRAY).append(Component.text(partialBuildMeta.getDescription()).color(NamedTextColor.WHITE)));
+                player.sendMessage(Component.text("Description: ").color(GRAY).append(
+                        Component.text(partialBuildMeta.getDescription()).color(WHITE)));
             } else {
-                player.sendMessage(Component.text("Description: ").color(NamedTextColor.GRAY).append(Component.text("Not set").color(NamedTextColor.RED)));
+                player.sendMessage(Component.text("Description: ").color(GRAY).append(
+                        Component.text("Not set").color(NamedTextColor.RED)));
             }
             if (partialBuildMeta.getLabels() != null && !partialBuildMeta.getLabels().isEmpty()) {
-                player.sendMessage(Component.text("Labels: ").color(NamedTextColor.GRAY).append(Component.text(String.join(", ", partialBuildMeta.getLabels())).color(NamedTextColor.WHITE)));
+                player.sendMessage(Component.text("Labels: ").color(GRAY).append(
+                        Component.text(String.join(", ", partialBuildMeta.getLabels())).color(WHITE)));
             } else {
-                player.sendMessage(Component.text("Labels: ").color(NamedTextColor.GRAY).append(Component.text("Not set").color(NamedTextColor.RED)));
+                player.sendMessage(Component.text("Labels: ").color(GRAY).append(
+                        Component.text("Not set").color(NamedTextColor.RED)));
             }
-            player.sendMessage(Component.text("Use /build save to save your build").color(NamedTextColor.GRAY));
+            player.sendMessage(Component.text("Use /build save to save your build").color(GRAY));
             return;
         }
 
@@ -97,26 +113,33 @@ public class BuildCommand {
         try {
             latestBuildData = buildStore.loadLatest(name);
         } catch (BuildException e) {
-            logger.log(Level.SEVERE, "Failed to fetch latest build", e);
             player.sendMessage(Component.text(e.getUserMessage()).color(NamedTextColor.RED));
             return;
         }
         if (latestBuildData != null) {
-            player.sendMessage(Component.text("Build info for " + name).color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
-            player.sendMessage(Component.text("State ").color(NamedTextColor.GRAY).append(Component.text("Saved").color(NamedTextColor.GREEN)));
-            player.sendMessage(Component.text("Version: ").color(NamedTextColor.GRAY).append(Component.text(
-                    latestBuildData.buildMeta().version()).color(NamedTextColor.WHITE)));
-            player.sendMessage(Component.text("Description: ").color(NamedTextColor.GRAY).append(Component.text(
-                    latestBuildData.buildMeta().description()).color(NamedTextColor.WHITE)));
-            if (latestBuildData.buildMeta().labels().isEmpty()) {
-                player.sendMessage(Component.text("Labels: ").color(NamedTextColor.GRAY).append(Component.text("None").color(NamedTextColor.WHITE)));
+            BuildMeta buildMeta = latestBuildData.buildMeta();
+            player.sendMessage(
+                    Component.text("Build info for " + name).color(BLUE).decorate(TextDecoration.BOLD));
+            player.sendMessage(Component.text("State ").color(GRAY).append(
+                    Component.text("Saved").color(NamedTextColor.GREEN)));
+            player.sendMessage(Component.text("Version: ").color(GRAY).append(Component.text(
+                    buildMeta.version()).color(WHITE)));
+            player.sendMessage(Component.text("Description: ").color(GRAY).append(Component.text(
+                    buildMeta.description()).color(WHITE)));
+            if (buildMeta.labels().isEmpty()) {
+                player.sendMessage(Component.text("Labels: ").color(GRAY).append(
+                        Component.text("None").color(WHITE)));
             } else {
-                player.sendMessage(Component.text("Labels: ").color(NamedTextColor.GRAY).append(Component.text(String.join(", ", latestBuildData.buildMeta().labels())).color(NamedTextColor.WHITE)));
+                player.sendMessage(Component.text("Labels: ").color(GRAY).append(
+                        Component.text(String.join(", ", buildMeta.labels())).color(
+                                WHITE)));
             }
-            player.sendMessage(Component.text("Saved by: ").color(NamedTextColor.GRAY).append(Component.text(PlayerFetcher.getName(
-                    latestBuildData.buildMeta().savedBy()).orElse("Unknown")).color(NamedTextColor.WHITE)));
-            player.sendMessage(Component.text("Saved at: ").color(NamedTextColor.GRAY).append(Component.text(DATE_FORMAT.format(LocalDateTime.ofEpochSecond(
-                    latestBuildData.buildMeta().savedAt() / 1000, 0, ZoneOffset.UTC))).color(NamedTextColor.WHITE)));
+            player.sendMessage(
+                    Component.text("Saved by: ").color(GRAY).append(Component.text(PlayerFetcher.getName(
+                            buildMeta.savedBy()).orElse("Unknown")).color(WHITE)));
+            player.sendMessage(Component.text("Saved at: ").color(GRAY).append(
+                    Component.text(DATE_FORMAT.format(buildMeta.savedAt())).color(
+                            WHITE)));
             return;
         }
 
@@ -132,7 +155,6 @@ public class BuildCommand {
                 return;
             }
         } catch (BuildException e) {
-            logger.log(Level.SEVERE, "Failed to check if build exists", e);
             player.sendMessage(Component.text(e.getUserMessage()).color(NamedTextColor.RED));
             return;
         }
@@ -144,13 +166,17 @@ public class BuildCommand {
         }
 
         partialBuilds.put(name, new PartialBuildMeta(name, 1, "Not set", Collections.emptyList()));
-        player.sendMessage(Component.text("Build created! Use /build to view commands to edit and save your build.").color(NamedTextColor.GREEN));
+        player.sendMessage(
+                Component.text("Build created! Use /build to view commands to edit and save your build.").color(
+                        NamedTextColor.GREEN));
     }
 
     @Command("build load <name>")
     public void load(Player player, String name, @Default("latest") String version, @Switch("force") @Default("false") Boolean force) {
         if (!force && partialBuilds.containsKey(name)) {
-            player.sendMessage(Component.text().content("Build already loaded locally. Use /build load <name> --force to override.").color(NamedTextColor.RED));
+            player.sendMessage(Component.text().content(
+                    "Build already loaded locally. Use /build load <name> --force to override.").color(
+                    NamedTextColor.RED));
             return;
         }
         Build buildData;
@@ -165,7 +191,6 @@ public class BuildCommand {
             player.sendMessage(Component.text("Invalid version number").color(NamedTextColor.RED));
             return;
         } catch (BuildException e) {
-            logger.log(Level.SEVERE, "Failed to load build", e);
             player.sendMessage(Component.text(e.getUserMessage()).color(NamedTextColor.RED));
             return;
         }
@@ -177,18 +202,24 @@ public class BuildCommand {
 
         byte[] schematicData = buildData.buildData().schematicBytes();
 
-        try (ClipboardReader reader = BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC.getReader(new ByteArrayInputStream(schematicData))) {
+        try (ClipboardReader reader = BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC.getReader(
+                new ByteArrayInputStream(schematicData))) {
             Clipboard clipboard = reader.read();
 
             BukkitPlayer adapt = BukkitAdapter.adapt(player);
             adapt.getSession().setClipboard(new ClipboardHolder(clipboard));
 
-            partialBuilds.put(name, new PartialBuildMeta(name, buildData.buildMeta().version() + 1, buildData.buildMeta().description(), new ArrayList<>(
-                    buildData.buildMeta().labels())));
+            partialBuilds.put(
+                    name, new PartialBuildMeta(
+                            name, buildData.buildMeta().version() + 1, buildData.buildMeta().description(),
+                            new ArrayList<>(
+                                    buildData.buildMeta().labels())
+                    )
+            );
 
-            player.sendMessage(Component.text("The build has been loaded into your clipboard.").color(NamedTextColor.GREEN));
+            player.sendMessage(
+                    Component.text("The build has been loaded into your clipboard.").color(NamedTextColor.GREEN));
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to read schematic schematicBytes", e);
             player.sendMessage(Component.text(e.getMessage()));
         }
 
@@ -203,17 +234,20 @@ public class BuildCommand {
 
         Clipboard clipboard = adapt.getSession().getClipboard().getClipboard();
         if (clipboard == null) {
-            player.sendMessage(Component.text("You must have a build loaded in your clipboard to save it").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("You must have a build loaded in your clipboard to save it").color(
+                    NamedTextColor.RED));
             return;
         }
 
         if (buildMeta.getDescription() == null) {
-            player.sendMessage(Component.text("You must set a description for your build before saving it").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("You must set a description for your build before saving it").color(
+                    NamedTextColor.RED));
             return;
         }
 
         if (buildMeta.getLabels() == null) {
-            player.sendMessage(Component.text("You must set labels for your build before saving it").color(NamedTextColor.RED));
+            player.sendMessage(
+                    Component.text("You must set labels for your build before saving it").color(NamedTextColor.RED));
             return;
         }
 
@@ -227,14 +261,20 @@ public class BuildCommand {
         }
 
         try {
-            buildStore.save(new BuildMeta(buildMeta.getName(), buildMeta.getVersion(), buildMeta.getDescription(),
-                                          new ArrayList<>(buildMeta.getLabels()), player.getUniqueId(), System.currentTimeMillis()), out.toByteArray());
+            buildStore.save(
+                    new BuildMeta(
+                            buildMeta.getName(), buildMeta.getVersion(), buildMeta.getDescription(),
+                            new ArrayList<>(buildMeta.getLabels()), player.getUniqueId(), LocalDateTime.now()
+                    ), out.toByteArray()
+            );
         } catch (BuildException e) {
             logger.log(Level.SEVERE, "Failed to save build", e);
             player.sendMessage(Component.text(e.getUserMessage()).color(NamedTextColor.RED));
             return;
         }
-        player.sendMessage(Component.text("%s v%d has been saved using your clipboard.".formatted(name, buildMeta.getVersion())).color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text(
+                "%s v%d has been saved using your clipboard.".formatted(name, buildMeta.getVersion())).color(
+                NamedTextColor.GREEN));
     }
 
     @Command("build setdescription <name> <description>")
@@ -284,7 +324,8 @@ public class BuildCommand {
     public void history(Player player, String name) {
         final List<BuildMeta> buildMeta;
         try {
-            buildMeta = buildStore.getHistory(name).stream().sorted(Comparator.comparingInt(BuildMeta::version).reversed()).toList();
+            buildMeta = buildStore.getHistory(name).stream().sorted(
+                    Comparator.comparingInt(BuildMeta::version).reversed()).toList();
         } catch (BuildException e) {
             logger.log(Level.SEVERE, "Failed to fetch build history", e);
             player.sendMessage(Component.text(e.getUserMessage()).color(NamedTextColor.RED));
@@ -297,22 +338,24 @@ public class BuildCommand {
         }
 
         player.sendMessage(Component.text("Build history for " + name).color(NamedTextColor.GREEN));
-        CompletableFuture.runAsync(() -> {
-            for (BuildMeta meta : buildMeta) {
+        CompletableFuture.runAsync(
+                () -> {
+                    for (BuildMeta meta : buildMeta) {
 
-                String playerName = PlayerFetcher.getName(meta.savedBy()).orElse("Unknown");
-                String date = meta.savedAt() == 0 ? "Unknown" : DATE_FORMAT.format(LocalDateTime.ofEpochSecond(meta.savedAt() / 1000, 0, ZoneOffset.UTC));
+                        String playerName = PlayerFetcher.getName(meta.savedBy()).orElse("Unknown");
+                        String date = DATE_FORMAT.format(meta.savedAt());
 
-                Component line = Component.text(" * ").color(NamedTextColor.GRAY)
-                        .append(Component.text(meta.version()).color(NamedTextColor.AQUA))
-                        .append(Component.text(" saved by ").color(NamedTextColor.WHITE))
-                        .append(Component.text(playerName).color(NamedTextColor.AQUA))
-                        .append(Component.text(" on ").color(NamedTextColor.WHITE))
-                        .append(Component.text(date).color(NamedTextColor.AQUA));
+                        Component line = Component.text(" * ").color(GRAY)
+                                .append(Component.text(meta.version()).color(NamedTextColor.AQUA))
+                                .append(Component.text(" saved by ").color(WHITE))
+                                .append(Component.text(playerName).color(NamedTextColor.AQUA))
+                                .append(Component.text(" on ").color(WHITE))
+                                .append(Component.text(date).color(NamedTextColor.AQUA));
 
-                player.sendMessage(line);
-            }
-        }, uuidExecutor).exceptionally(e -> {
+                        player.sendMessage(line);
+                    }
+                }, uuidExecutor
+        ).exceptionally(e -> {
             logger.log(Level.SEVERE, "Failed to fetch player names", e);
             return null;
         });
@@ -324,7 +367,8 @@ public class BuildCommand {
         if (buildMeta == null) {
             try {
                 if (buildStore.exists(name)) {
-                    player.sendMessage(Component.text("You must use /build load <name> before you can edit it.").color(NamedTextColor.RED));
+                    player.sendMessage(Component.text("You must use /build load <name> before you can edit it.").color(
+                            NamedTextColor.RED));
                     return null;
                 }
             } catch (BuildException e) {
@@ -333,7 +377,9 @@ public class BuildCommand {
                 return null;
             }
 
-            player.sendMessage(Component.text("No build with that name has been created, start by using /build create <name>").color(NamedTextColor.RED));
+            player.sendMessage(Component.text(
+                    "No build with that name has been created, start by using /build create <name>").color(
+                    NamedTextColor.RED));
             return null;
         }
         return buildMeta;

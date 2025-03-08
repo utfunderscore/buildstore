@@ -1,12 +1,14 @@
 package org.readutf.buildstore.api;
 
-import java.time.Instant;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 public record BuildMeta(@NonNull String name, int version, @NonNull String description, @NonNull List<String> labels,
-                        @NonNull UUID savedBy, Instant savedAt) {
+                        @NonNull UUID savedBy, LocalDateTime savedAt) {
 
     public String getId() {
         return name + ":" + version;
@@ -47,5 +49,21 @@ public record BuildMeta(@NonNull String name, int version, @NonNull String descr
 //        return new BuildMeta(name, version, description, labels, savedBy, savedAt);
 //    }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof BuildMeta buildMeta)) return false;
+        return version == buildMeta.version &&
+                Objects.equals(name, buildMeta.name) &&
+                Objects.equals(savedBy, buildMeta.savedBy) &&
+                Objects.equals(description, buildMeta.description) &&
+                Objects.equals(labels, buildMeta.labels) &&
+                Duration.between(savedAt, buildMeta.savedAt).abs().getSeconds() < 1;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version, description, labels, savedBy, savedAt);
+    }
 }
 

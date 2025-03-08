@@ -1,0 +1,15 @@
+schematics:
+  sql:
+    enabled: true
+    url: jdbc:sqlite:plugins/buildstore/buildstore.db
+meta:
+  s3:
+    enabled: false
+    bucket: builddata
+    region: us-west-2
+    accessKey: <accessKey>
+    path-style-access: false
+    # endpoint: http://localhost:9000
+  sql:
+    enabled: true
+    url: jdbc:sqlite:plugins/buildstore/buildstore.db
